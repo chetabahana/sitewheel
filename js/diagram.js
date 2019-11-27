@@ -90,11 +90,11 @@ function doTheTreeViz(diagram) {
             .style("cursor", "pointer")
             //.attr("id", function(d,i) {return getId(d,i,this);})
             .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
-            .on("dblclick", function(d){
+            .on("click", function(d){
                 diagram.nodeClickInProgress=false;
                             draw.click(this);
             })
-            .on("click", function(d){
+            .on("dblclick", function(d){
                 // this is a hack so that click doesnt fire on the1st click of a dblclick
                 if (!diagram.nodeClickInProgress ) {
                     diagram.nodeClickInProgress = true;
