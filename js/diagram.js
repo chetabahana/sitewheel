@@ -73,44 +73,17 @@ function doTheTreeViz(diagram) {
 
     var svg = diagram.svg;
     var force = diagram.force;
-    var pads = ["link", "stroke", "shadow", "text", "circle", "node"];
+    var pads = ["shadow", "stroke", "text", "circle", "link", "node"];
 
     force.nodes(diagram.nodes)
         .links(diagram.links)
         .start();
 
-    // Update the links
-    var link = svg.selectAll("line.link")
-        .data(diagram.links, function(d) {return d.key;});
- 
-   // Enter any new links
-    var linkEnter = link.enter()
-        .insert("svg:line", ".node")
-            .attr("class", "link")
-            .style("cursor", "pointer")
-            .attr("x1", function(d) {return d.source.x;})
-            .attr("y1", function(d) {return d.source.y;})
-            .attr("x2", function(d) {return d.target.x;})
-            .attr("y2", function(d) {return d.target.y;})
-            //.attr("id", function(d,i) {return getId(d,i,this);})
-        .append("svg:title")
-            .text(function(d) {return d.target.name + ":" + d.source.name ;});
-
-    // Exit any old links.
-    link.exit().remove();
-
-  // Update the nodes
+    // Update the nodes
     var node = svg.selectAll("g.node")
         .data(diagram.nodes, function(d) {return d.key;});
 
-    node.select("circle")
-        .attr("class", "circle")
-        .style("cursor", "pointer")
-        .attr("r", function(d) {return getRadius(d);})
-        .style("fill", function(d) {return getColor(d);})
-        //.attr("id", function(d,i) {return getId(d,i,this);});
-
-  // Enter any new nodes.
+    // Enter any new nodes.
     var nodeEnter = node.enter()
         .append("svg:g")
             .attr("class", "node")
@@ -135,7 +108,13 @@ function doTheTreeViz(diagram) {
             })
         .call(force.drag);
 
-    // enhance all the links that end here
+    node.select("circle")
+        .attr("class", "circle")
+        .style("cursor", "pointer")
+        .attr("r", function(d) {return getRadius(d);})
+        .style("fill", function(d) {return getColor(d);})
+        //.attr("id", function(d,i) {return getId(d,i,this);});
+
     nodeEnter
         .append("svg:circle")
             .attr("class", "circle")
@@ -144,15 +123,71 @@ function doTheTreeViz(diagram) {
             .style("fill", function(d) {return getColor(d);})
             .on("mouseover", function(d){enhanceNode (d);})
             .on("mouseout", function(d){resetNode(d);})
-            .attr("id", function(d,i) {return getId(d,i,this);})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
         .append("svg:title")
             .text(function(d) {return d[diagram.options.nodeLabel];});
+
+    // Update the links
+    var link = svg.selectAll("line.link")
+        .data(diagram.links, function(d) {return d.key;});
+ 
+    // Enter any new links
+    var linkEnter = link.enter()
+        .insert("svg:line", ".node")
+            .attr("class", "link")
+            .style("cursor", "pointer")
+            .attr("x1", function(d) {return d.source.x;})
+            .attr("y1", function(d) {return d.source.y;})
+            .attr("x2", function(d) {return d.target.x;})
+            .attr("y2", function(d) {return d.target.y;})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
+        .append("svg:title")
+            .text(function(d) {return d.target.name + ":" + d.source.name ;});
+
+    if (diagram.options.nodeLabel) {
+       // text is done once for shadow as well as for text
+        var textShadow = nodeEnter.append("svg:text")
+            .attr("dy", ".31em")
+            .attr("class", "shadow")
+            .attr("id", function(d,i) {return getId(d,i,this);})
+            .style("font-size",diagram.options.labelFontSize + "px")
+            .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
+            .attr("x", function(d) {var x = (d.right || !d.fixed)? 
+                diagram.options.labelOffset: (-d.dim.width - diagram.options.labelOffset); return x;})
+            .text(function(d) {return d.shortName? d.shortName : d.name;});
+
+        // enhance all the links that end here
+        var text = nodeEnter.append("svg:text")
+            .attr("dy", ".35em")
+            .attr("class", "text")
+            .attr("id", function(d,i) {return getId(d,i,this);})
+            .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
+            .style("font-size",diagram.options.labelFontSize + "px")
+            .attr("x", function(d) {var x = (d.right || !d.fixed)? 
+                diagram.options.labelOffset: (-d.dim.width - diagram.options.labelOffset);return x;})
+            .text(function(d) {return d.shortName? d.shortName : d.name;})
+            .on("mouseover", function(d){enhanceNode (d); d3.select(this).style('fill',diagram.options.routeFocusStroke);})
+            .on("mouseout", function(d){resetNode(d);});
+    }
+
+    if (diagram.options.linkName) {
+        link.append("title")
+            .text(function(d) {
+                return d[diagram.options.linkName];
+        });
+    }
+
+    // Exit any old links and nodes.
+    link.exit().remove(); node.exit().remove();
+    diagram.link = svg.selectAll("line.link");
+    diagram.node = svg.selectAll("g.node");
+    force.on("tick", tick);
 
     function enhanceNode(selectedNode) {
         link.filter (function (d) {return d.source.key == selectedNode.key || d.target.key == selectedNode.key;})
             .attr("class", "stroke")
             .style("stroke", diagram.options.routeFocusStroke)
-            //.attr("id", function(d,i) {return getId(d,i,this);})
+            .attr("id", function(d,i) {return getId(d,i,this);})
             .style("stroke-width", diagram.options.routeFocusStrokeWidth);
         
         if (text) {
@@ -178,45 +213,6 @@ function doTheTreeViz(diagram) {
         }
     }
 
-   if (diagram.options.nodeLabel) {
-       // text is done once for shadow as well as for text
-        var textShadow = nodeEnter.append("svg:text")
-            .attr("dy", ".31em")
-            .attr("class", "shadow")
-            //.attr("id", function(d,i) {return getId(d,i,this);})
-            .style("font-size",diagram.options.labelFontSize + "px")
-            .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
-            .attr("x", function(d) {var x = (d.right || !d.fixed)? 
-                diagram.options.labelOffset: (-d.dim.width - diagram.options.labelOffset); return x;})
-            .text(function(d) {return d.shortName? d.shortName : d.name;});
-
-        // enhance all the links that end here
-        var text = nodeEnter.append("svg:text")
-            .attr("dy", ".35em")
-            .attr("class", "text")
-            //.attr("id", function(d,i) {return getId(d,i,this);})
-            .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
-            .style("font-size",diagram.options.labelFontSize + "px")
-            .attr("x", function(d) {var x = (d.right || !d.fixed)? 
-                diagram.options.labelOffset: (-d.dim.width - diagram.options.labelOffset);return x;})
-            .text(function(d) {return d.shortName? d.shortName : d.name;})
-            .on("mouseover", function(d){enhanceNode (d); d3.select(this).style('fill',diagram.options.routeFocusStroke);})
-            .on("mouseout", function(d){resetNode(d);});
-    }
-
-    // Exit any old nodes.
-    node.exit().remove();
-    diagram.link = svg.selectAll("line.link");
-    diagram.node = svg.selectAll("g.node");
-    force.on("tick", tick);
-
-    if (diagram.options.linkName) {
-        link.append("title")
-            .text(function(d) {
-                return d[diagram.options.linkName];
-        });
-    }
-
     function tick() {
         link.attr("x1", function(d) {return d.source.x;})
             .attr("y1", function(d) {return d.source.y;})
@@ -226,18 +222,20 @@ function doTheTreeViz(diagram) {
             return "translate(" + d.x + "," + d.y + ")";
         });
     }
- 
-    function getRadius(d) {
-        return makeRadius(diagram,d);
-    }
-    function getColor(d) {
-        return diagram.options.nodeFocus && d.isCurrentlyFocused? 
-            diagram.options.nodeFocusColor  : diagram.color(d.group) ;
-    }
+
     function getId(d,i,e) {
         var pad = pads.indexOf($(e).attr('class'));
         var s = String(i); while (s.length < (pad || 6)) {s = "0" + s;}
         return s;
+    }
+
+    function getColor(d) {
+        return diagram.options.nodeFocus && d.isCurrentlyFocused? 
+            diagram.options.nodeFocusColor  : diagram.color(d.group) ;
+    }
+ 
+    function getRadius(d) {
+        return makeRadius(diagram,d);
     }
 }
    
@@ -339,8 +337,8 @@ function dataMassage(diagram,data) {
             
             // x based on right or left column
             page.x = page.right? 
-                        diagram.width - diagram.pageRectSize.width - options.labelOffset  :
-                        page.dim.width + options.labelOffset ;
+                diagram.width - diagram.pageRectSize.width - options.labelOffset  :
+                page.dim.width + options.labelOffset ;
             c++;
         }
     }
