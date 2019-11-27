@@ -73,7 +73,7 @@ function doTheTreeViz(diagram) {
 
     var svg = diagram.svg;
     var force = diagram.force;
-    var pads = ["shadow", "text", "link", "stroke", "circle", "node"];
+    var pads = ["shadow", "stroke", "text", "circle", "link", "node"];
 
     force.nodes(diagram.nodes)
         .links(diagram.links)
@@ -92,7 +92,7 @@ function doTheTreeViz(diagram) {
             .attr("y1", function(d) {return d.source.y;})
             .attr("x2", function(d) {return d.target.x;})
             .attr("y2", function(d) {return d.target.y;})
-            .attr("id", function(d,i) {return getId(d,i,this);})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
         .append("svg:title")
             .text(function(d) {return d.target.name + ":" + d.source.name ;});
 
