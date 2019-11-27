@@ -73,7 +73,7 @@ function doTheTreeViz(diagram) {
 
     var svg = diagram.svg;
     var force = diagram.force;
-    var pads = ["link", "stroke", "shadow", "text", "circle", "node"];
+    var pads = ["shadow", "text", "link", "stroke", "circle", "node"];
 
     force.nodes(diagram.nodes)
         .links(diagram.links)
