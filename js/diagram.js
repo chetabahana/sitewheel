@@ -115,7 +115,7 @@ function doTheTreeViz(diagram) {
         .append("svg:g")
             .attr("class", "node")
             .style("cursor", "pointer")
-            .attr("id", function(d,i) {return getId(d,i,this);})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
             .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
             .on("dblclick", function(d){diagram.nodeClickInProgress=false; draw.click(this);})
             .on("click", function(d){
@@ -226,18 +226,20 @@ function doTheTreeViz(diagram) {
             return "translate(" + d.x + "," + d.y + ")";
         });
     }
- 
-    function getRadius(d) {
-        return makeRadius(diagram,d);
-    }
-    function getColor(d) {
-        return diagram.options.nodeFocus && d.isCurrentlyFocused? 
-            diagram.options.nodeFocusColor  : diagram.color(d.group) ;
-    }
+
     function getId(d,i,e) {
         var pad = pads.indexOf($(e).attr('class'));
         var s = String(i); while (s.length < (pad || 6)) {s = "0" + s;}
         return s;
+    }
+
+    function getColor(d) {
+        return diagram.options.nodeFocus && d.isCurrentlyFocused? 
+            diagram.options.nodeFocusColor  : diagram.color(d.group) ;
+    }
+ 
+    function getRadius(d) {
+        return makeRadius(diagram,d);
     }
 }
    
