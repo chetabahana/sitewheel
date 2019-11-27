@@ -95,7 +95,7 @@ function doTheTreeViz(diagram) {
                 // this is a hack so that click doesnt fire on the1st click of a dblclick
                 if (!diagram.nodeClickInProgress ) {
                     diagram.nodeClickInProgress = true;
-                    setTimeout(function(){
+                    setTimeout(function(this){
                         if (diagram.nodeClickInProgress) {
                             diagram.nodeClickInProgress = false; draw.click(this);
                             //if (diagram.options.nodeFocus) {
