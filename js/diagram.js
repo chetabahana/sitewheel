@@ -152,7 +152,7 @@ function doTheTreeViz(diagram) {
         var textShadow = nodeEnter.append("svg:text")
             .attr("dy", ".31em")
             .attr("class", "shadow")
-            .attr("id", function(d,i) {return getId(d,i,this);})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
             .style("font-size",diagram.options.labelFontSize + "px")
             .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
             .attr("x", function(d) {var x = (d.right || !d.fixed)? 
@@ -163,7 +163,7 @@ function doTheTreeViz(diagram) {
         var text = nodeEnter.append("svg:text")
             .attr("dy", ".35em")
             .attr("class", "text")
-            .attr("id", function(d,i) {return getId(d,i,this);})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
             .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
             .style("font-size",diagram.options.labelFontSize + "px")
             .attr("x", function(d) {var x = (d.right || !d.fixed)? 
@@ -190,7 +190,7 @@ function doTheTreeViz(diagram) {
         link.filter (function (d) {return d.source.key == selectedNode.key || d.target.key == selectedNode.key;})
             .attr("class", "stroke")
             .style("stroke", diagram.options.routeFocusStroke)
-            .attr("id", function(d,i) {return getId(d,i,this);})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
             .style("stroke-width", diagram.options.routeFocusStrokeWidth);
         
         if (text) {
