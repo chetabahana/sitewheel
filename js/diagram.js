@@ -341,8 +341,8 @@ function dataMassage(diagram,data) {
             
             // x based on right or left column
             page.x = page.right? 
-                        diagram.width - diagram.pageRectSize.width - options.labelOffset  :
-                        page.dim.width + options.labelOffset ;
+                diagram.width - diagram.pageRectSize.width - options.labelOffset  :
+                page.dim.width + options.labelOffset ;
             c++;
         }
     }
