@@ -108,7 +108,7 @@ function doTheTreeViz(diagram) {
         .style("cursor", "pointer")
         .attr("r", function(d) {return getRadius(d);})
         .style("fill", function(d) {return getColor(d);})
-        .attr("id", function(d,i) {return getId(d,i,this);});
+        //.attr("id", function(d,i) {return getId(d,i,this);});
 
   // Enter any new nodes.
     var nodeEnter = node.enter()
@@ -144,7 +144,7 @@ function doTheTreeViz(diagram) {
             .style("fill", function(d) {return getColor(d);})
             .on("mouseover", function(d){enhanceNode (d);})
             .on("mouseout", function(d){resetNode(d);})
-            .attr("id", function(d,i) {return getId(d,i,this);})
+            //.attr("id", function(d,i) {return getId(d,i,this);})
         .append("svg:title")
             .text(function(d) {return d[diagram.options.nodeLabel];});
 
