@@ -92,10 +92,7 @@ function doTheTreeViz(diagram) {
             .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
             .on("dblclick", function(d){
                 diagram.nodeClickInProgress=false;
-                if (diagram.options.nodeFocus) {
-                    d.isCurrentlyFocused = !d.isCurrentlyFocused;
-                    doTheTreeViz(makeFilteredData(diagram));
-                }
+                            draw.click(this);
             })
             .on("click", function(d){
                 // this is a hack so that click doesnt fire on the1st click of a dblclick
@@ -104,7 +101,10 @@ function doTheTreeViz(diagram) {
                     setTimeout(function(){
                         if (diagram.nodeClickInProgress) {
                             diagram.nodeClickInProgress = false;
-                            draw.click(this);
+                if (diagram.options.nodeFocus) {
+                    d.isCurrentlyFocused = !d.isCurrentlyFocused;
+                    doTheTreeViz(makeFilteredData(diagram));
+                }
                         }
                     },diagram.clickHack); 
                 }
