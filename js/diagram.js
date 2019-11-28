@@ -51,7 +51,6 @@ function initTheTreeViz (skema) {
         diagram.nodes = data.nodes;
         diagram.links = data.links;
         diagram.color = d3.scale.category20();
-        diagram.clickHack = 200;
     
         diagram.svg = d3.select(diagram.divName)
             .append("svg:svg")
@@ -91,7 +90,7 @@ function doTheTreeViz(diagram) {
             //.attr("id", function(d,i) {return getId(d,i,this);})
             .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
             .on("dblclick", function(d){
-                diagram.nodeClickInProgress=false;
+                click=false;
                 if (diagram.options.nodeFocus) {
                     d.isCurrentlyFocused = !d.isCurrentlyFocused;
                     doTheTreeViz(makeFilteredData(diagram));
