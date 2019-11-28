@@ -1,6 +1,5 @@
 function initTheTreeViz (skema) {
 
-    var diagram = {};
     var newoptions = {nodeLabel:"label", nodeResize:"count", height:700, nodeFocus:true, radius:3, charge:-500};
 
     diagram.divName = "#diagram";
