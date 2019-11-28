@@ -1,47 +1,45 @@
+var defoptions = {
+    stackHeight : 12,
+    radius : 5,
+    fontSize : 14,
+    labelFontSize : 8,
+    labelLineSpacing: 2.5,
+    nodeLabel : null,
+    markerWidth : 0,
+    markerHeight : 0,
+    gap : 1.5,
+    nodeResize : "",
+    linkDistance : 80,
+    charge : -120,
+    styleColumn : null,
+    styles : null,
+    linkName : null,
+    nodeFocus: true,
+    nodeFocusRadius: 25,
+    nodeFocusColor: "FireBrick",
+    labelOffset: 5,
+    gravity: .05,
+    routeFocusStroke: "FireBrick",
+    routeFocusStrokeWidth: 3,
+    circleFill: "Black",
+    routeStroke: "Black",
+    routeStrokeWidth: 1,
+    width : $("#diagram").outerWidth(),
+    height : $("#diagram").outerHeight()
+};
+
+var newoptions = {nodeLabel:"label", nodeResize:"count", height:700, nodeFocus:true, radius:3, charge:-500};
+
 function initTheTreeViz (skema) {
 
-    var diagram = {};
-    var newoptions = {nodeLabel:"label", nodeResize:"count", height:700, nodeFocus:true, radius:3, charge:-500};
-
-    diagram.divName = "#diagram";
-    diagram.options = $.extend({
-        stackHeight : 12,
-        radius : 5,
-        fontSize : 14,
-        labelFontSize : 8,
-        labelLineSpacing: 2.5,
-        nodeLabel : null,
-        markerWidth : 0,
-        markerHeight : 0,
-        width : $(diagram.divName).outerWidth(),
-        gap : 1.5,
-        nodeResize : "",
-        linkDistance : 80,
-        charge : -120,
-        styleColumn : null,
-        styles : null,
-        linkName : null,
-        nodeFocus: true,
-        nodeFocusRadius: 25,
-        nodeFocusColor: "FireBrick",
-        labelOffset: 5,
-        gravity: .05,
-        routeFocusStroke: "FireBrick",
-        routeFocusStrokeWidth: 3,
-        circleFill: "Black",
-        routeStroke: "Black",
-        routeStrokeWidth: 1,
-        height : $(diagram.divName).outerHeight()
-    }, newoptions);
-  
-    var options = diagram.options;
+    options = $.extend(defoptions, newoptions);
     options.gap = options.gap * options.radius;
     diagram.width = options.width;
     diagram.height = options.height;
     diagram.scratch = $(document.createElement('span'))
         .addClass('shadow')
         .css('display','none')
-        .css("font-size",diagram.options.labelFontSize + "px");   
+        .css("font-size",options.labelFontSize + "px");   
     $('body').append(diagram.scratch);
 
     var initPromise = $.Deferred();
@@ -51,18 +49,17 @@ function initTheTreeViz (skema) {
         diagram.nodes = data.nodes;
         diagram.links = data.links;
         diagram.color = d3.scale.category20();
-        diagram.clickHack = 200;
     
-        diagram.svg = d3.select(diagram.divName)
+        diagram.svg = d3.select("#diagram")
             .append("svg:svg")
             .attr("width", diagram.width)
             .attr("height", diagram.height);
         
         diagram.force = d3.layout.force().
             size([diagram.width, diagram.height])
-            .linkDistance(diagram.options.linkDistance)
-            .charge(diagram.options.charge)
-            .gravity(diagram.options.gravity);
+            .linkDistance(options.linkDistance)
+            .charge(options.charge)
+            .gravity(options.gravity);
 
         initPromise.resolve(diagram);
     });
@@ -90,25 +87,7 @@ function doTheTreeViz(diagram) {
             .style("cursor", "pointer")
             //.attr("id", function(d,i) {return getId(d,i,this);})
             .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
-            .on("dblclick", function(d){
-                diagram.nodeClickInProgress=false;
-                if (diagram.options.nodeFocus) {
-                    d.isCurrentlyFocused = !d.isCurrentlyFocused;
-                    doTheTreeViz(makeFilteredData(diagram));
-                }
-            })
-            .on("click", function(d){
-                // this is a hack so that click doesnt fire on the1st click of a dblclick
-                if (!diagram.nodeClickInProgress ) {
-                    diagram.nodeClickInProgress = true;
-                    setTimeout(function(){
-                        if (diagram.nodeClickInProgress) {
-                            diagram.nodeClickInProgress = false;
-                            draw.click(this);
-                        }
-                    }.bind(this),diagram.clickHack); 
-                }
-            })
+            .on("dblclick", function(d){draw.dblclick(d);})
         .call(force.drag);
 
     node.select("circle")
@@ -128,7 +107,7 @@ function doTheTreeViz(diagram) {
             .on("mouseout", function(d){resetNode(d);})
             //.attr("id", function(d,i) {return getId(d,i,this);})
         .append("svg:title")
-            .text(function(d) {return d[diagram.options.nodeLabel];});
+            .text(function(d) {return d[options.nodeLabel];});
 
     // Update the links
     var link = svg.selectAll("line.link")
@@ -147,16 +126,16 @@ function doTheTreeViz(diagram) {
         .append("svg:title")
             .text(function(d) {return d.target.name + ":" + d.source.name ;});
 
-    if (diagram.options.nodeLabel) {
+    if (options.nodeLabel) {
        // text is done once for shadow as well as for text
         var textShadow = nodeEnter.append("svg:text")
             .attr("dy", ".31em")
             .attr("class", "shadow")
             .attr("id", function(d,i) {return getId(d,i,this);})
-            .style("font-size",diagram.options.labelFontSize + "px")
+            .style("font-size",options.labelFontSize + "px")
             .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
             .attr("x", function(d) {var x = (d.right || !d.fixed)? 
-                diagram.options.labelOffset: (-d.dim.width - diagram.options.labelOffset); return x;})
+                options.labelOffset: (-d.dim.width - options.labelOffset); return x;})
             .text(function(d) {return d.shortName? d.shortName : d.name;});
 
         // enhance all the links that end here
@@ -165,18 +144,18 @@ function doTheTreeViz(diagram) {
             .attr("class", "text")
             .attr("id", function(d,i) {return getId(d,i,this);})
             .attr("text-anchor", function(d) {return !d.right? 'start' : 'start' ;})
-            .style("font-size",diagram.options.labelFontSize + "px")
+            .style("font-size",options.labelFontSize + "px")
             .attr("x", function(d) {var x = (d.right || !d.fixed)? 
-                diagram.options.labelOffset: (-d.dim.width - diagram.options.labelOffset);return x;})
+                options.labelOffset: (-d.dim.width - options.labelOffset);return x;})
             .text(function(d) {return d.shortName? d.shortName : d.name;})
-            .on("mouseover", function(d){enhanceNode (d); d3.select(this).style('fill',diagram.options.routeFocusStroke);})
+            .on("mouseover", function(d){enhanceNode (d); d3.select(this).style('fill',options.routeFocusStroke);})
             .on("mouseout", function(d){resetNode(d);});
     }
 
-    if (diagram.options.linkName) {
+    if (options.linkName) {
         link.append("title")
             .text(function(d) {
-                return d[diagram.options.linkName];
+                return d[options.linkName];
         });
     }
 
@@ -189,13 +168,13 @@ function doTheTreeViz(diagram) {
     function enhanceNode(selectedNode) {
         link.filter (function (d) {return d.source.key == selectedNode.key || d.target.key == selectedNode.key;})
             .attr("class", "stroke")
-            .style("stroke", diagram.options.routeFocusStroke)
+            .style("stroke", options.routeFocusStroke)
             .attr("id", function(d,i) {return getId(d,i,this);})
-            .style("stroke-width", diagram.options.routeFocusStrokeWidth);
+            .style("stroke-width", options.routeFocusStrokeWidth);
         
         if (text) {
             text.filter (function (d) {return areWeConnected (selectedNode,d);})
-                .style("fill", diagram.options.routeFocusStroke);
+                .style("fill", options.routeFocusStroke);
         }
     }
 
@@ -209,10 +188,10 @@ function doTheTreeViz(diagram) {
     }
 
     function resetNode(selectedNode) {
-        link.style("stroke", diagram.options.routeStroke)
-            .style("stroke-width", diagram.options.routeStrokeWidth);
+        link.style("stroke", options.routeStroke)
+            .style("stroke-width", options.routeStrokeWidth);
         if (text) {
-            text.style("fill", diagram.options.routeStroke);
+            text.style("fill", options.routeStroke);
         }
     }
 
@@ -233,18 +212,18 @@ function doTheTreeViz(diagram) {
     }
 
     function getColor(d) {
-        return diagram.options.nodeFocus && d.isCurrentlyFocused? 
-            diagram.options.nodeFocusColor  : diagram.color(d.group) ;
+        return options.nodeFocus && d.isCurrentlyFocused? 
+            options.nodeFocusColor  : diagram.color(d.group) ;
     }
  
     function getRadius(d) {
         return makeRadius(diagram,d);
     }
 }
-   
+
 function makeRadius(diagram,d) {
-     var r = diagram.options.radius * (diagram.options.nodeResize? Math.sqrt(d[diagram.options.nodeResize]) / Math.PI : 1);
-     return diagram.options.nodeFocus && d.isCurrentlyFocused? diagram.options.nodeFocusRadius  : r;
+     var r = options.radius * (options.nodeResize? Math.sqrt(d[options.nodeResize]) / Math.PI : 1);
+     return options.nodeFocus && d.isCurrentlyFocused? options.nodeFocusRadius  : r;
 }
 
 function makeFilteredData(diagram,selectedNode){
@@ -329,7 +308,6 @@ function dataMassage(diagram,data) {
        
    }
 
-    var options= diagram.options;
     // we're going to fix the nodes that are pages into two columns
     for ( var i = 0, c=0; i < nodes.length ; i++) {
         var page = nodes[i];
