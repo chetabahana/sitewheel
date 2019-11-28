@@ -29,10 +29,10 @@ var defoptions = {
 };
 
 var newoptions = {nodeLabel:"label", nodeResize:"count", height:700, nodeFocus:true, radius:3, charge:-500};
-var options = $.extend(defoptions, newoptions);
 
 function initTheTreeViz (skema) {
 
+    options = $.extend(defoptions, newoptions);
     options.gap = options.gap * options.radius;
     diagram.width = options.width;
     diagram.height = options.height;
