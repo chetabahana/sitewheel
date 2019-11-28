@@ -87,8 +87,6 @@ function doTheTreeViz(diagram) {
             .style("cursor", "pointer")
             //.attr("id", function(d,i) {return getId(d,i,this);})
             .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
-            .on("click", function(d){draw.click(this);})
-            .on("dblclick", function(d){draw.dblclick(d);})
         .call(force.drag);
 
     node.select("circle")
