@@ -97,18 +97,7 @@ function doTheTreeViz(diagram) {
                     doTheTreeViz(makeFilteredData(diagram));
                 }
             })
-            .on("click", function(d){
-                // this is a hack so that click doesnt fire on the1st click of a dblclick
-                if (!diagram.nodeClickInProgress ) {
-                    diagram.nodeClickInProgress = true;
-                    setTimeout(function(){
-                        if (diagram.nodeClickInProgress) {
-                            diagram.nodeClickInProgress = false;
-                            draw.click(this);
-                        }
-                    }.bind(this),diagram.clickHack); 
-                }
-            })
+            .on("click", function(d){draw.click(this);})
         .call(force.drag);
 
     node.select("circle")
