@@ -87,13 +87,7 @@ function doTheTreeViz(diagram) {
             .style("cursor", "pointer")
             //.attr("id", function(d,i) {return getId(d,i,this);})
             .attr("transform", function(d) {return "translate(" + d.x + "," + d.y + ")";})
-            .on("dblclick", function(d){
-                click=false;
-                if (options.nodeFocus) {
-                    d.isCurrentlyFocused = !d.isCurrentlyFocused;
-                    doTheTreeViz(makeFilteredData(diagram));
-                }
-            })
+            .on("dblclick", function(d){draw.dblclick(d);})
             .on("click", function(d){draw.click(this);})
         .call(force.drag);
 
@@ -227,7 +221,7 @@ function doTheTreeViz(diagram) {
         return makeRadius(diagram,d);
     }
 }
-   
+
 function makeRadius(diagram,d) {
      var r = options.radius * (options.nodeResize? Math.sqrt(d[options.nodeResize]) / Math.PI : 1);
      return options.nodeFocus && d.isCurrentlyFocused? options.nodeFocusRadius  : r;
